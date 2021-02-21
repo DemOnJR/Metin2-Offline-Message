@@ -1,3 +1,6 @@
+///Add
+#include "service.h"
+
 //Find
 	HEADER_GD_REQUEST_CHANNELSTATUS	= 140,
 	
