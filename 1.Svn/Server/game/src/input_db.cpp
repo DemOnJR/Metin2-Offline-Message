@@ -27,7 +27,7 @@ void CInputDB::ReadOfflineMessages(LPDESC desc, const char* pcData)
 	int len = MIN(CHAT_MAX_LEN, strlen(p->szMessage) + 1);
 	pack.bHeader = HEADER_GC_WHISPER;
 	pack.wSize = static_cast<WORD>(sizeof(TPacketGCWhisper) + len);
-	pack.bType = WHISPER_TYPE_NORMAL;
+	pack.bType = WHISPER_TYPE_OFFLINE;
 	strlcpy(pack.szNameFrom, p->szFrom, sizeof(pack.szNameFrom));
 
 	TEMP_BUFFER buf;
