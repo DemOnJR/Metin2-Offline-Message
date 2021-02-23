@@ -21,6 +21,20 @@
 				break;
 #endif
 
+//Find
+		if (!(thecore_heart->pulse % (thecore_heart->passes_per_sec * 3600)))	// ЗСЅГ°ЈїЎ ЗС№ш
+		{
+			CMoneyLog::instance().Save();
+		}
+		
+///Add
+#if defined(BL_OFFLINE_MESSAGE)
+		if (!(thecore_heart->pulse % (thecore_heart->passes_per_sec * 3600)))
+		{
+			CClientManager::instance().OfflineMessageGarbage();
+		}
+#endif
+
 ///Add new funcs
 #if defined(BL_OFFLINE_MESSAGE)
 void CClientManager::RequestReadOfflineMessages(CPeer* pkPeer, DWORD dwHandle, TPacketGDReadOfflineMessage* p)
@@ -40,9 +54,29 @@ void CClientManager::RequestReadOfflineMessages(CPeer* pkPeer, DWORD dwHandle, T
 
 	m_OfflineMessage.erase(it);
 }
+
 void CClientManager::SendOfflineMessage(TPacketGDSendOfflineMessage* p)
 {
 	auto msg = std::make_shared<SOfflineMessage>(p->szFrom, p->szMessage);
 	m_OfflineMessage[p->szTo].emplace_back(std::move(msg));
+}
+
+void CClientManager::OfflineMessageGarbage()
+{
+	if (m_OfflineMessage.empty())
+		return;
+
+	static const/*expr*/ int iHour = 5;
+	const auto tCurrent = std::chrono::system_clock::now();
+
+	for (auto& mOff : m_OfflineMessage) {
+		auto& vMessage = mOff.second;
+		for (auto iter = vMessage.begin(); iter != vMessage.end();) {
+			if (std::chrono::duration_cast<std::chrono::hours>(tCurrent - iter->get()->t).count() >= iHour)
+				iter = vMessage.erase(iter);
+			else
+				++iter;
+		}
+	}
 }
 #endif
